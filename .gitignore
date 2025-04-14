@@ -1,0 +1,7 @@
+node_modules
+dist
+documents
+clientv1
+.env
+# Local Netlify folder
+.netlify
