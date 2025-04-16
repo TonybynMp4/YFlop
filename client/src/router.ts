@@ -36,8 +36,12 @@ const router = createRouter({
 			component: () => import('@/pages/post/PostPage.vue'),
 		},
 		{
-			path: '/discover',
-			component: () => import('@/pages/discover/DiscoverPage.vue'),
+			path: '/search',
+			component: () => import('@/pages/search/SearchPage.vue'),
+		},
+		{
+			path: '/search/:query',
+			component: () => import('@/pages/search/SearchPage.vue'),
 		},
 		{
 

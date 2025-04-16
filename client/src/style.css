@@ -4,13 +4,31 @@
 	font-weight: 400;
 
 	color-scheme: light dark;
-	color: #242424;
-	background-color: #ffffff;
+	color: #ffffff;
+	background-color: #242424;
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+}
+
+.destructive {
+	color: white;
+	background-color: red;
+}
+
+.destructive:hover {
+	color: white;
+	background-color: darkred;
+}
+
+.destructive-inverted {
+	color: red;
+}
+
+.destructive-inverted:hover {
+	color: darkred;
 }
 
 h1 {
@@ -75,7 +93,7 @@ button:disabled,
 
 .action-btn {
 	font-size: 1rem;
-	color: black
+	color: white;
 }
 
 .action-btn:hover {
@@ -89,8 +107,8 @@ textarea {
 	max-height: 20rem;
 	padding: 0.5rem;
 	border-radius: 8px;
-	background-color: #f8f9fa;
-	color: #242424;
+	background-color: #242424;
+	color: #ffffff;
 	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
