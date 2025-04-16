@@ -23,23 +23,24 @@ class Post {
 		}
 	}
 
-	static async searchPost(search) {
+	static async searchPosts(search, { authUserId = null }) {
 		return new Promise((resolve, reject) => {
 			const query = `SELECT post.*, user.username, user.displayname, user.profile_picture
 				FROM posts AS post
 				LEFT JOIN users AS user
 				ON post.user_id = user.id
-				WHERE post.description LIKE ?
+				WHERE post.description LIKE :search OR user.username LIKE :search OR user.displayname LIKE :search
 				ORDER BY post.created_at DESC
 			`;
-			db.query(query, [`%${search}%`], async (err, rows) => {
+
+			db.query(query, { search: `%${search}%` }, async (err, rows) => {
 				if (err) {
 					return reject(err);
 				}
 				try {
 					const posts = [];
 					for (let row of rows) {
-						const postData = await this.getData(row, { withMedia: true, withComments: true, withLikes: true });
+						const postData = await this.getData(row, { withMedia: true, withComments: true, withLikes: true, withLiked: true, authUserId });
 						posts.push(postData);
 					}
 					resolve(posts);
