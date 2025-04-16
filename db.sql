@@ -1,0 +1,68 @@
+CREATE DATABASE IF NOT EXISTS `yflop`;
+
+USE `yflop`;
+
+CREATE TABLE IF NOT EXISTS users (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `username` VARCHAR(255) NOT NULL UNIQUE,
+	`displayname` VARCHAR(255) NOT NULL,
+    `email` VARCHAR(255) NOT NULL UNIQUE,
+    `role` ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+    `password` VARCHAR(255) NOT NULL,
+	`bio` VARCHAR(255),
+    `profile_picture` VARCHAR(255),
+    `created_at` TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT NOT NULL,
+    `description` TEXT,
+    `created_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS post_medias (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `post_id` BIGINT NOT NULL,
+    `user_id` BIGINT NOT NULL,
+    `media_url` VARCHAR(255) NOT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT NOT NULL,
+    `post_id` BIGINT NOT NULL,
+    `comment` TEXT NOT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS likes (
+    `user_id` BIGINT NOT NULL,
+    `post_id` BIGINT NOT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY (user_id, post_id)
+);
+
+CREATE TABLE IF NOT EXISTS followers (
+    `follower_id` BIGINT NOT NULL,
+    `following_id` BIGINT NOT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (follower_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (following_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY (follower_id, following_id)
+);
+
+CREATE USER 'Yflop'@'localhost'
+/* Change this !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+IDENTIFIED BY 'Yflop';
+
+GRANT INSERT, SELECT, UPDATE, DELETE ON yflop.* TO 'Yflop'@'localhost';
+FLUSH PRIVILEGES;
