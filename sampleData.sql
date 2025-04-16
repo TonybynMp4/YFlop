@@ -1,10 +1,10 @@
 
 INSERT INTO users (username, email, displayname, role, password, bio, profile_picture, created_at) VALUES
-('ynot', 'ynot@instaflop.fr', 'Tony Hawk', 'user', '$2b$10$ptRzED8pD1GnQt2/DLHhOuFtksJKagLutaOrPBf7SAXHwVRDASWRS', NULL, 'https://pbs.twimg.com/profile_images/1781041197865201664/I-OBJndK_400x400.jpg', '2025-03-31 08:42:35'),
-('tony', 'tony@instaflop.fr', 'Ynot', 'user', '$2b$10$ptRzED8pD1GnQt2/DLHhOuFtksJKagLutaOrPBf7SAXHwVRDASWRS', NULL, NULL, '2025-04-01 13:33:12'),
-('lilstick', 'lilstick@instaflop.fr', 'LilStick', 'user', '$2b$10$eCaKBGod2rjWNFbqj59l7O3MNiwBu/pb9KNY3zVr50vzu7KY5AOgm', NULL, NULL, '2025-04-02 12:08:09'),
-('badis', 'badis@instaflop.fr', "Badis l'arbre", 'user', '$2b$10$23BBFdX.FlbusIOTIdHM6.A3gbwIx0ruk11MW/NVaNPK/hHAOjUPS', NULL, NULL, '2025-04-02 12:29:17'),
-('ynot1', 'ynot1@instaflop.fr', 'Ynot', 'user', '$2b$10$l6ERYZvXIzfYkZD.0RFIce8T3W4uCLSx.TdAvwyN3.AhnaroN4HmK', NULL, NULL, '2025-04-02 15:35:08');
+('ynot', 'ynot@yflop.fr', 'Tony Hawk', 'user', '$2b$10$ptRzED8pD1GnQt2/DLHhOuFtksJKagLutaOrPBf7SAXHwVRDASWRS', NULL, 'https://pbs.twimg.com/profile_images/1781041197865201664/I-OBJndK_400x400.jpg', '2025-03-31 08:42:35'),
+('tony', 'tony@yflop.fr', 'Ynot', 'user', '$2b$10$ptRzED8pD1GnQt2/DLHhOuFtksJKagLutaOrPBf7SAXHwVRDASWRS', NULL, NULL, '2025-04-01 13:33:12'),
+('lilstick', 'lilstick@yflop.fr', 'LilStick', 'user', '$2b$10$eCaKBGod2rjWNFbqj59l7O3MNiwBu/pb9KNY3zVr50vzu7KY5AOgm', NULL, NULL, '2025-04-02 12:08:09'),
+('badis', 'badis@yflop.fr', "Badis l'arbre", 'user', '$2b$10$23BBFdX.FlbusIOTIdHM6.A3gbwIx0ruk11MW/NVaNPK/hHAOjUPS', NULL, NULL, '2025-04-02 12:29:17'),
+('ynot1', 'ynot1@yflop.fr', 'Ynot', 'user', '$2b$10$l6ERYZvXIzfYkZD.0RFIce8T3W4uCLSx.TdAvwyN3.AhnaroN4HmK', NULL, NULL, '2025-04-02 15:35:08');
 
 INSERT INTO posts (id, user_id, description, created_at) VALUES
 (1, 1, 'Normandie était en concert a Paris!', '2025-03-31 13:13:52'),
