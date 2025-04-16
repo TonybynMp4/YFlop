@@ -87,11 +87,11 @@
 		cursor: pointer;
 		width: 2rem;
 		height: 2rem;
-		color: #000;
+		color: white;
 	}
 
 	.dialogActions svg:hover {
-		color: white;
+		color: gray;
 	}
 
 	.closeDialog {

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-    import { computed } from 'vue';
+    import { computed, ref } from 'vue';
     import useAuthStore from './stores/auth-store';
 	import { HomeIcon, LogInIcon, LogOutIcon, SearchIcon, UserPlus2 } from 'lucide-vue-next';
 	import ProfilePictureComponent from './components/profile/ProfilePictureComponent.vue';
-	import { ref } from 'vue';
 	import SearchBarComponent from './components/SearchBarComponent.vue';
-    const authStore = useAuthStore();
+	const authStore = useAuthStore();
     const isLoggedIn = computed(() => authStore.getUser !== null);
     const onClickLogout = () => authStore.logout();
 	const showSearchBar = ref(false);
@@ -40,7 +39,7 @@
             </li>
             <li v-if="isLoggedIn">
 				<router-link class="action-btn" to="/profile">
-					<ProfilePictureComponent :src="authStore.getUser?.profilePicture" :fallback="authStore.getUser?.username ?? '?'" />
+					<ProfilePictureComponent :src="authStore.getUser?.profilePicture" :fallback="authStore.getUser?.username ?? '?'" :key="authStore.getUser?.profilePicture" />
 				</router-link>
 			</li>
             <li v-if="isLoggedIn">

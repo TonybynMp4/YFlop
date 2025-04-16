@@ -11,7 +11,11 @@ const uploadRouter = {
 			maxFileCount: 10,
 		},
 	})
-	.onUploadComplete((data) => console.log("Upload complete", data))
+	.onUploadComplete((data) => console.log("Upload complete", data)),
+	ProfilePicture: f({
+		image: { maxFileSize: "4MB", maxFileCount: 1 },
+	})
+	.onUploadComplete((data) => console.log("Upload complete", data)),
 };
 
 module.exports = { uploadRouter };

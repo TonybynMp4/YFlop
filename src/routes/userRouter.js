@@ -152,25 +152,23 @@ router.delete('/', async (req, res) => {
 
 router.put('/', async (req, res) => {
     const authUserId = req.auth.id;
-    const { id, username, displayname, email, password, profile_picture } = req.body;
+    const { displayname, bio, password, profile_picture } = req.body;
 
-    if (!id)
-        return res.status(400).json({ error: 'User ID is required' });
-    else if (!username && !displayname && !email && !password && !profile_picture) {
+	if (!authUserId) {
+		res.status(401).json({ error: 'Unauthorized' });
+		return;
+	}
+
+    if (!displayname && !bio && !password && !profile_picture) {
         return res.status(400).json({ error: 'At least one field is required' });
     }
 
-    if (!authUserId) {
-        res.status(401).json({ error: 'Unauthorized' });
-        return;
-    }
-
     try {
-        const user = await User.update(id, req.body);
+        const user = await User.update(authUserId, req.body);
         if (user)
-            res.status(200).json(user);
+            res.status(200).json({user});
         else
-            res.status(404).json({ message: 'User not found' });
+            res.status(404).json({ error: 'User not found' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

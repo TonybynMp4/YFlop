@@ -128,12 +128,12 @@ class User {
         });
     }
 
-    static async update(id, { username, displayname, email, password, profile_picture }) {
+    static async update(id, { displayname, bio, password, profile_picture }) {
         if (!id) {
             throw new Error('id is required');
         }
 
-        if (!username && !displayname && !email && !password && !profile_picture) {
+        if (!displayname && !bio && !password && !profile_picture) {
             throw new Error('At least one field is required');
         }
 
@@ -142,20 +142,15 @@ class User {
             let fields = [];
             let values = [];
 
-            if (username) {
-                fields.push('username = ?');
-                values.push(username);
-            }
-
             if (displayname) {
                 fields.push('displayname = ?');
                 values.push(displayname);
             }
 
-            if (email) {
-                fields.push('email = ?');
-                values.push(email);
-            }
+			if (bio) {
+				fields.push('bio = ?');
+				values.push(bio);
+			}
 
             if (password) {
                 password = bcrypt.hashSync(password, 10);
@@ -179,7 +174,15 @@ class User {
                     return reject(new Error('user not found'));
                 }
 
-                resolve(result);
+				const getQuery = `
+					SELECT ${
+						fields.map(field => field.split(' = ')[0]).join(', ')
+					} FROM users WHERE id = ?
+				`;
+				db.execute(getQuery, [id], (err, rows) => {
+					if(err) return reject(err);
+					resolve(rows[0]);
+				});
             });
         });
     }

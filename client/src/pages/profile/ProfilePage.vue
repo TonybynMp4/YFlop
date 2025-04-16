@@ -13,6 +13,7 @@
 	import { watch } from "vue";
 	import baseURL from "@/baseUrl";
 	import LoadingComponent from "@/components/LoadingComponent.vue";
+	import { UploadButton } from "@/uploadthing";
 	const router = useRouter();
 	const Route = useRoute();
 	let profileId = Route.params.id as string | null;
@@ -41,10 +42,6 @@
 	}
 
 	onBeforeMount(fetchData);
-
-	const dialogRef = useTemplateRef<HTMLDialogElement>("dialogRef");
-	const openDialog = () => dialogRef.value?.showModal();
-	const closeDialog = () => dialogRef.value?.close();
 
 	const currentTab = ref("feed");
 	const setTab = (tab: string) => {
@@ -120,12 +117,120 @@
 			alert('Error deleting post. Please try again later.');
 		}
 	}
+
+	const savedChanges = ref(false);
+	const isUploading = ref(false);
+	const newProfilePictureURL = ref<string | null>(null);
+
+	const dialogRef = useTemplateRef<HTMLDialogElement>("dialogRef");
+	const openDialog = () => dialogRef.value?.showModal();
+	const closeDialog = () => {
+		dialogRef.value?.close();
+		newProfilePictureURL.value = null;
+	};
+
+	const submitSettings = (e: Event) => {
+		if (!authStore.getUser) return;
+		const newDisplayName = (e.target as HTMLFormElement).displayname.value;
+		const newBio = (e.target as HTMLFormElement).bio.value;
+		const newProfilePicture = newProfilePictureURL.value;
+		const newPassword = (e.target as HTMLFormElement).newPassword.value;
+		const confirmPassword = (e.target as HTMLFormElement).confirmPassword.value;
+
+		if (isUploading.value) {
+			alert("Veuillez attendre que le téléchargement de la photo de profil soit terminé.");
+			return;
+		}
+
+		if (!confirm("Etes-vous sûr de vouloir enregistrer ces modifications ?")) return;
+
+		if (!newDisplayName) {
+			alert("Le nom d'utilisateur ne peut pas être vide.");
+			return;
+		}
+
+		if (newDisplayName === authStore.getUser.displayname && newBio === userData.value.bio && !newProfilePicture && !newPassword) {
+			alert("Aucune modification n'a été apportée.");
+			return;
+		}
+
+		if (newPassword && newPassword.length > 0 && newPassword !== confirmPassword) {
+			alert("Les mots de passe ne correspondent pas.");
+			return;
+		}
+
+		const requestBody = JSON.stringify({
+			displayname: newDisplayName === authStore.getUser.displayname ? null : newDisplayName,
+			bio: newBio === userData.value.bio ? null : newBio,
+			password: newPassword && newPassword.length > 0 ? newPassword : null,
+			profile_picture: newProfilePicture,
+		})
+
+		fetch(`${baseURL}/api/user`, {
+			method: "PUT",
+			credentials: "include",
+			headers: { "Content-Type": "application/json" },
+			body: requestBody,
+		})
+		.then((res) => res.json())
+		.then((APIResult: {
+				error?: string;
+				user: {
+					displayname?: string;
+					bio?: string;
+					profile_picture?: string;
+				}
+			}) => {
+			const { error, user } = APIResult;
+
+			if (error) {
+				alert(error);
+				return;
+			}
+			(e.target as HTMLFormElement).reset();
+			newProfilePictureURL.value = null;
+
+			const authUser = authStore.getUser;
+			if (!authUser) return;
+			authStore.setUser({
+				...authUser,
+				displayname: user.displayname ?? authUser.displayname,
+				profilePicture: user.profile_picture ?? authUser.profilePicture,
+			});
+
+			userData.value = {
+				...userData.value,
+				displayname: user.displayname ?? authUser.displayname,
+				bio: user.bio ?? userData.value.bio,
+				profilePicture: user.profile_picture ?? authUser.profilePicture,
+			};
+
+			posts.value = posts.value.map((post) => {
+				return {
+					...post,
+					user: {
+						...post.user,
+						displayname: user.displayname ?? authUser.displayname,
+						profilePicture: user.profile_picture ?? authUser.profilePicture,
+					},
+				};
+			});
+
+			savedChanges.value = true;
+			setTimeout(() => {
+				savedChanges.value = false;
+				closeDialog();
+			}, 2000);
+		})
+	}
+
+	const alert = (message: string) => window.alert(message);
 </script>
 
 <template>
 	<main>
 		<section class="profile-header">
-			<ProfilePicture class="profile-picture" :src="userData.profilePicture" :fallback="userData.username" :key="userData.username"/>
+			<ProfilePicture class="profile-picture" :src="userData.profilePicture" :fallback="userData.username?? '?'" :key="userData.profilePicture"/>
 			<div class="profile-info">
 				<div class="profile-info-top">
 					<h2 style="font-size: larger; font-weight: bold;">{{ userData.displayname }}</h2>
@@ -190,15 +295,78 @@
 	</main>
 
 	<dialog ref="dialogRef" class="settings-dialog">
-		<h2>Profile Settings</h2>
-		<!--
-			settings:
-				displayname
-				pfp
-				bio
-		-->
-		<button @click="closeDialog">Annuler</button>
-		<button @click="">Enregistrer</button>
+		<h2 class="settings-dialog_title">
+			Modifier le profil
+		</h2>
+		<form class="settings-form" @submit.prevent="submitSettings">
+			<label for="displayname">
+				Nom d'utilisateur:
+			</label>
+			<input type="text" id="displayname" name="displayname" placeholder="Comment vous appelez vous?" :value="userData.displayname" />
+
+			<label for="newPassword">
+				Nouveau mot de passe:
+			</label>
+			<input type="password" id="newPassword" name="newPassword" placeholder="Nouveau mot de passe" />
+
+			<label for="confirmPassword">
+				Confirmer le mot de passe:
+			</label>
+			<input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirmer le mot de passe" />
+
+			<label for="bio">Bio:</label>
+			<textarea id="bio" name="bio" placeholder="Décrivez vous..">{{ userData.bio }}</textarea>
+
+			<label>Photo de profil:</label>
+			<div class="settings-form_profile-pictures">
+				<div>
+					<p>Actuelle:</p>
+					<ProfilePicture :src="userData.profilePicture" :fallback="userData.username ?? '?'" :key="userData.username" />
+				</div>
+				<div v-if="newProfilePictureURL">
+					<p>Nouvelle:</p>
+					<ProfilePicture :src="newProfilePictureURL" :fallback="userData.username ?? '?'" v-if="newProfilePictureURL" :key="newProfilePictureURL" />
+				</div>
+			</div>
+
+			<label for="profile-picture">
+				Modifier la photo de profil:
+			</label>
+			<UploadButton :config="{
+				headers: {
+					credentials: 'include',
+				},
+				endpoint: 'ProfilePicture',
+				onClientUploadComplete: (files) => {
+					files.forEach(file => {
+						newProfilePictureURL = file.ufsUrl;
+					});
+					isUploading = false;
+				},
+				onBeforeUploadBegin: (file) => {
+					isUploading = true;
+					return file
+				},
+				onUploadAborted: () => {
+					alert('Upload Aborted');
+				},
+				onUploadError: (error) => {
+					console.error(error, error.cause);
+					alert('Upload failed');
+				},
+			}" />
+			<p v-if="savedChanges" class="saved-changes">Modifications enregistrées !</p>
+
+			<div class="settings-actions">
+				<button type="reset" class="destructive" @click="closeDialog" :disabled="isUploading">Annuler</button>
+				<button type="submit" :disabled="isUploading">
+					<LoadingComponent v-if="isUploading" />
+					<span v-else>
+						Enregistrer
+					</span>
+				</button>
+			</div>
+		</form>
 	</dialog>
 </template>
 
@@ -312,5 +480,62 @@ main {
 	padding: 20px;
 	border-radius: 10px;
 	text-align: center;
+	width: 50%;
+	border: 1px solid #ccc;
+}
+
+.saved-changes {
+	color: green;
+	font-weight: bold;
+	margin-block: 1rem;
+}
+
+.settings-dialog_title {
+	font-size: 1.5rem;
+	font-weight: bold;
+	margin-bottom: 1rem;
+}
+
+.settings-form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.settings-form label {
+	text-align: left;
+}
+.settings-form input,
+.settings-form textarea {
+	width: 100%;
+	padding: 0.5rem;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+}
+
+.settings-form textarea {
+	resize: none;
+	height: 100px;
+}
+.settings-actions {
+	display: flex;
+	justify-content: center;
+	gap: 1rem;
+}
+
+.settings-form_profile-pictures {
+	display: flex;
+	gap: 30%;
+	justify-content: center;
+	width: 80%;
+}
+
+.settings-form_profile-pictures div {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
 }
 </style>

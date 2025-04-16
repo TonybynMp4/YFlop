@@ -16,7 +16,7 @@
    </section>
 </template>
 
-<style>
+<style scoped>
     input:user-invalid {
         border: 2px inset red;
         border-radius: 0.5rem;

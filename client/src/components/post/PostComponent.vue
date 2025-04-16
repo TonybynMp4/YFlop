@@ -171,6 +171,7 @@ const deletePost = () => {
 
 .post {
 	display: flex;
+	background-color: #242424;
 	flex-direction: column;
 	gap: 1rem;
 	align-items: flex-start;
@@ -212,7 +213,7 @@ const deletePost = () => {
 }
 
 .post_image {
-	background-color: black;
+	background-color: #242424;
 	width: 100%;
 	align-self: center;
 	max-height: 40rem;

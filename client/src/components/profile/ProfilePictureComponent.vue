@@ -22,5 +22,6 @@
 		border: 1px solid #a5a5a5;
 		align-content: center;
 		text-align: center;
+		justify-content: center;
 	}
 </style>
