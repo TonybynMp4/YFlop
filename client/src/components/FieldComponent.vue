@@ -23,7 +23,7 @@
     }
 
 	input {
-		color: #333;
+		color: white;
 		border: 1px solid #ccc;
 		border-radius: 0.5rem;
 		padding: 0.5rem;
